@@ -4,10 +4,21 @@ const path = require("path");
 const https = require("https");
 const { exec } = require("child_process");
 
+const packageJson = require("../package.json");
+
 const scripts = `
 "start": "webpack serve --config webpack.dev.js --open",
 "build": "NODE_ENV=production webpack --config webpack.config.prod.js"
 `;
+
+const getDeps = (deps) =>
+	Object.entries(deps)
+		.map((dep) => `${dep[0]}@${dep[1]}`)
+		.toString()
+		.replace(/,/g, " ")
+		.replace(/^/g, "")
+		// исключим зависимость, используемую только в этом файле, не относящуюся к шаблону
+		.replace(/fs-extra[^\s]+/g, "");
 
 console.log("Initializing project..");
 
@@ -79,22 +90,32 @@ exec(
 
 		console.log("npm init -- done\n");
 
+		/** installing deps */
+		console.log("Installing deps -- it might take a few minutes..");
+		const devDeps = getDeps(packageJson.devDependencies);
+		const deps = getDeps(packageJson.dependencies);
 		exec(
-			`cd ${process.argv[2]}`,
-			() => {
+			`cd ${process.argv[2]} && git init && node -v && npm -v && npm i -D ${devDeps} && npm i -S ${deps}`,
+			(npmErr, npmStdout, npmStderr) => {
+				if (npmErr) {
+					console.error(`Some error while installing dependencies ${npmErr}`);
+					console.log('Reverting...');
+					`rm -r ${process.argv[2]}`
+					return;
+				}
+				console.log(npmStdout);
+				console.log("Dependencies installed");
+
 				console.log("Copying additional files..");
-				// копирование дополнительных файлов с кодом
+				/** copy additional files */
 				fs.copy(path.join(__dirname, "../public"), `${process.argv[2]}/public`)
 				fs.copy(path.join(__dirname, "../src"), `${process.argv[2]}/src`)
 					.then(() =>
 						console.log(
-							`All done!\n\nYour project is now ready\n\nUse the below command to run the app.\n\ncd ${process.argv[2]}\n npm i\n npm start`
+							`All done!\n\nYour project is now ready\n\nUse the below command to run the app.\n\ncd ${process.argv[2]}\nnpm start`
 						)
 					)
-					.catch((err) => {
-						console.error(`Some error occurred: ${err}`);
-						exec(`rm -r ${process.argv[2]}`);
-					});
+					.catch((err) => console.error(err));
 			}
 		);
 	}

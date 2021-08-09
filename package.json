@@ -1,6 +1,6 @@
 {
   "name": "react_ts_widget_starter",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "React widget boilerplate generator with typescript",
   "main": "src/index.tsx",
   "scripts": {
