@@ -52,12 +52,12 @@ exec(
 			"webpack.config.js",
 			"webpack.config.prod.js",
 			"webpack.dev.js",
+			"jest.config.js",
+			"tsconfig.json",
 			".babelrc",
 			".eslintignore",
-			".eslintrc",
+			".eslintrc.js",
 			".prettierrc",
-			".jest.config.js",
-			".tsconfig.json",
 		];
 
 		for (let i = 0; i < filesToCopy.length; i += 1) {
