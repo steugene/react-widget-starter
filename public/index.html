@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Widget</title>
+  <style>
+    body {
+      font-family: SeroPro, Helvetica, Arial, "Lucida Grande", sans-serif;
+    }
+    a {
+      color: blue;
+      cursor: pointer;
+    }
+    body {
+      margin: auto;
+    }
+
+    #Widget {
+      margin: 20px;
+    }
+  </style>
+  <script src="/index.js"></script>
+</head>
+
+<body>
+  <div>
+    <div id="Widget"></div>
+  </div>
+  <div id="root"></div>
+  <script>
+    function init() {
+      if(window.Widget) {
+        window.Widget('Widget');
+      }
+    }
+
+    if (document.addEventListener) {
+      document.addEventListener("DOMContentLoaded", init, false);
+    } else {
+      document.attachEvent("onload", init);
+    }
+  </script>
+</body>
+
+</html>
