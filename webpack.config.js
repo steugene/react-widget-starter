@@ -39,6 +39,14 @@ module.exports = {
         include: path.join(__dirname, 'src'),
       },
       {
+        test: /\.module.s(a|c)ss$/,
+        use: ['style-loader', 'css-loader', 'sass-loader'],
+      },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
+      },
+      {
         test: /\.svg$/,
         loader: 'svg-url-loader',
       },

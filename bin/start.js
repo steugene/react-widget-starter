@@ -4,35 +4,25 @@ const path = require("path");
 const https = require("https");
 const { exec } = require("child_process");
 
-const packageJson = require("../package.json");
-
 const scripts = `
 "start": "webpack serve --config webpack.dev.js --open",
 "build": "NODE_ENV=production webpack --config webpack.config.prod.js"
 `;
 
-const getDeps = (deps) =>
-	Object.entries(deps)
-		.map((dep) => `${dep[0]}@${dep[1]}`)
-		.toString()
-		.replace(/,/g, " ")
-		.replace(/^/g, "")
-		// исключим зависимость, используемую только в этом файле, не относящуюся к шаблону
-		.replace(/fs-extra[^\s]+/g, "");
-
 console.log("Initializing project..");
 
-// создадим папку и инициализируем npm-проект
+/** create folder & init project */
 exec(
 	`mkdir ${process.argv[2]} && cd ${process.argv[2]} && npm init -f`,
-	(initErr, initStdout, initStderr) => {
+	(initErr) => {
 		if (initErr) {
-			console.error(`Everything was fine, then it wasn't:
-    ${initErr}`);
+			console.error(`Everything was fine, then it wasn't: ${initErr}`);
+			console.log('Reverting...');
+			`rm -r ${process.argv[2]}`
 			return;
 		}
 		const packageJSON = `${process.argv[2]}/package.json`;
-		// заменим скрипты, задаваемые по умолчанию
+		/** replace default scripts */
 		fs.readFile(packageJSON, (err, file) => {
 			if (err) throw err;
 			const data = file
@@ -40,6 +30,10 @@ exec(
 				.replace(
 					'"test": "echo \\"Error: no test specified\\" && exit 1"',
 					scripts
+				)
+				.replace(
+					'"main": "index.js"',
+					`"main": "index.tsx"`
 				)
 			fs.writeFile(packageJSON, data, (err2) => err2 || true);
 		});
@@ -61,8 +55,7 @@ exec(
 				fs.createWriteStream(`${process.argv[2]}/${filesToCopy[i]}`)
 			);
 		}
-		// npm, при установке пакета, удалит файл .gitignore, поэтому его нельзя скопировать из локальной папки шаблона; этот файл нужно загрузить.
-		// После отправки кода в GitHub-репозиторий пользуйтесь raw-файлом .gitignore
+		/** get gitignore from github */
 		https.get(
 			"https://github.com/steugene/react-widget-starter/master/.gitignore",
 			(res) => {
@@ -86,31 +79,22 @@ exec(
 
 		console.log("npm init -- done\n");
 
-		// установка зависимостей
-		console.log("Installing deps -- it might take a few minutes..");
-		const devDeps = getDeps(packageJson.devDependencies);
-		const deps = getDeps(packageJson.dependencies);
 		exec(
-			`cd ${process.argv[2]} && git init && node -v && npm -v && npm i -D ${devDeps} && npm i -S ${deps}`,
-			(npmErr, npmStdout, npmStderr) => {
-				if (npmErr) {
-					console.error(`Some error while installing dependencies
-      ${npmErr}`);
-					return;
-				}
-				console.log(npmStdout);
-				console.log("Dependencies installed");
-
+			`cd ${process.argv[2]}`,
+			() => {
 				console.log("Copying additional files..");
 				// копирование дополнительных файлов с кодом
 				fs.copy(path.join(__dirname, "../public"), `${process.argv[2]}/public`)
 				fs.copy(path.join(__dirname, "../src"), `${process.argv[2]}/src`)
 					.then(() =>
 						console.log(
-							`All done!\n\nYour project is now ready\n\nUse the below command to run the app.\n\ncd ${process.argv[2]}\nnpm start`
+							`All done!\n\nYour project is now ready\n\nUse the below command to run the app.\n\ncd ${process.argv[2]}\n npm i\n npm start`
 						)
 					)
-					.catch((err) => console.error(err));
+					.catch((err) => {
+						console.error(`Some error occurred: ${err}`);
+						exec(`rm -r ${process.argv[2]}`);
+					});
 			}
 		);
 	}

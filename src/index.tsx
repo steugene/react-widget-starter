@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import styled from './index.module.scss';
 
 window.Widget = (
   el: string | JSX.Element | DocumentFragment,
@@ -7,7 +8,7 @@ window.Widget = (
   const node: string | JSX.Element | DocumentFragment | HTMLElement | null =
     typeof el === 'string' ? document.getElementById(el) : el;
   const app: JSX.Element = (
-    <div>hello</div>
+    <div className={styled.root}>hello world</div>
   );
 
   if (node) {
