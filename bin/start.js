@@ -8,8 +8,7 @@ const packageJson = require("../package.json");
 
 const scripts = `
 "start": "webpack serve --config webpack.dev.js --open",
-"build": "NODE_ENV=production webpack --config webpack.config.prod.js",
-"lint": "eslint \\"src/**\\"",
+"build": "NODE_ENV=production webpack --config webpack.config.prod.js"
 `;
 
 const babel = `"babel": ${JSON.stringify(packageJson.babel)}`;
