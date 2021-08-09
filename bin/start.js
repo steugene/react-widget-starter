@@ -51,7 +51,7 @@ exec(
 		const filesToCopy = [
 			"webpack.config.js",
 			"webpack.config.prod.js",
-			"webpack.config.dev.js",
+			"webpack.dev.js",
 			".babelrc",
 			".eslintignore",
 			".eslintrc",
