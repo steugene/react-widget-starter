@@ -5,7 +5,7 @@ Comes with
 - webpack
 - eslint
 
-This library generate boilerplate for fronted widgets, that can be injected in some host project later on.
+This library generate boilerplate for frontend widgets, that can be injected in some host project later on.
 Example of implementation you can see in public folder.
 
 ## Installation
